@@ -19,13 +19,24 @@ pythoncom.CoInitialize()
 
 swCustomInfoText = 30
 VALID = {"钣金件", "型材", "外购件", "标准件", "机加工", "机加件"}
-SLDWORKS_EXE = r"E:\Program Files\SOLIDWORKS Corp\SOLIDWORKS\sldworks.exe"
 MEM_TRIGGER = 15.0
 
 # 复用 sw_categorize 的判定规则(空属性时按文件名判定)
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                 "..", "..", "4-导出BOM带截图", "scripts"))
 import sw_categorize as sc
+
+# ---- skill7 路径中枢（开源部署版）：所有绝对路径集中到 shared/skill7_paths.py ----
+import os as _os, sys as _sys
+_SK_ROOT = _os.path.abspath(_os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "..", "..", ".."))
+if _os.path.join(_SK_ROOT, "shared") not in _sys.path:
+    _sys.path.insert(0, _os.path.join(_SK_ROOT, "shared"))
+from skill7_paths import (  # noqa: E402
+    AUTOBOM_DIR, MICDATAS_DIR, AUTOBOM_CFG, SHOT_CACHE, ZHANKAI_EXE,
+    MACRO_DIR, MACRO_CLASSIFY, MACRO_PROFILE, SOLIDWORKS_EXE, SLDWORKS_EXE,
+    SLDWORKS_CANDIDATES, POPUP_GUARD, SKILLS_DIR, ACAD_EXE, PDM_MARKERS,
+)
+GLOBAL_SKILLS = SKILLS_DIR  # 兼容旧命名：依赖 skill 脚本统一走本仓库 skills/
 
 
 def log(msg):
@@ -132,7 +143,7 @@ def _localize_pdm_path(p, folder):
       - PDM 库副本 + 桌面夹无同名副本(真库件): (p, False) 标记只读跳过(库件属性原本已对, 不动)
     """
     low = p.lower().replace("/", "\\")
-    if "d:\\feedinghero" not in low:
+    if not any(m in low for m in PDM_MARKERS):
         return p, True
     fname = os.path.basename(p)
     local = os.path.join(folder, fname)

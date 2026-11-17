@@ -15,7 +15,7 @@ date: "2026-08-02T07:37:07.301Z"
 前置：SolidWorks 已开启；宏文件路径存在。
 
 ```
-python -X utf8 "C:\Users\mao\.openclaw\workspace\skills\5-运行SW宏\scripts\sw_run_macro.py" --macro "<宏.swp路径>" --dir "<要处理的零件目录>"
+python -X utf8 "skills\5-运行SW宏\scripts\sw_run_macro.py" --macro "<宏.swp路径>" --dir "<要处理的零件目录>"
 ```
 
 参数：
@@ -39,7 +39,7 @@ python -X utf8 "C:\Users\mao\.openclaw\workspace\skills\5-运行SW宏\scripts\sw
 - 点弹窗默认匹配标题含 SOLIDWORKS/AutoBOM（AutoBOM型材宏完成弹窗标题是 'AutoBOM 型材批量处理'，须匹配）
 
 ### 常用宏观路径（7 综合处理 orchestrator 实际用的）
-`Z:\solidworks information\macro\零件分类.swp`（分类宏）、`Z:\solidworks information\macro\型材零件名称数量合成另存文件夹.swp`（型材宏，module=`AutoBOM_型材批量处理`）
+`macros\零件分类.swp`（分类宏）、`macros\型材零件名称数量合成另存文件夹.swp`（型材宏，module=`AutoBOM_型材批量处理`）
 
 ### 注意事项
 - 运行宏会**真实修改文件/创建子文件夹**，执行前确认目录正确

@@ -12,7 +12,7 @@ description: "从SW总装配体读步路/线路零件(PVC管段,含虚拟件)规
 ## 怎么用（唯一入口）
 
 ```
-python -X utf8 "C:\Users\mao\.openclaw\workspace\skills\11-PVC管采购计算\scripts\sw_pvc_purchase.py" --dir "<图纸文件夹>" [--asm "<总装.sldasm>"] [--qty 套数] [-o 输出目录]
+python -X utf8 "skills\11-PVC管采购计算\scripts\sw_pvc_purchase.py" --dir "<图纸文件夹>" [--asm "<总装.sldasm>"] [--qty 套数] [-o 输出目录]
 ```
 
 - `--dir`：图纸文件夹，必填（自动找总装：代号最短，排除 ~$ / ST_ / Pipe_）

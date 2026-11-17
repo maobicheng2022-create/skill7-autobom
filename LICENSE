@@ -1,0 +1,41 @@
+# 许可协议（自定义：保留所有权利，禁止商业使用）
+
+Copyright (c) 2026 朗科科技 / maobicheng2022-create. All Rights Reserved.
+
+本仓库中的**自有部分**（`skills/` 下的 Python 脚本、`shared/`、`tools/`、`docs/`、`macros/` 下的 SolidWorks 宏、
+`templates/` 下的 BOM 模板与配置、README 等文档）适用本协议。
+`autobom/portable/` 下的第三方二进制不适用本协议，见 `NOTICE.md`。
+
+## 中文
+
+### 允许
+
+- 个人学习、研究、内部试用
+- 下载、阅读、修改源码用于**非商业**用途
+- 在非商业项目中引用本项目，并注明来源
+
+### 禁止
+
+- **任何商业用途**（包括但不限于：对外提供付费服务、作为商品或商品的一部分销售、用于收费培训/咨询、
+  在商业生产环境中使用以获取收入）
+- 将本项目（含修改后的版本）整体或部分**再分发、转售、上架**到任何应用商店、代码托管平台或付费渠道
+- 去除或篡改本协议与版权声明
+- 将本仓库中的第三方组件（AutoBOM 等）单独提取用于任何用途
+
+### 免责
+
+本软件按"现状"提供，不附带任何明示或暗示的担保。作者不对因使用本软件造成的
+任何直接或间接损失（包括但不限于图纸损坏、生产错误、数据丢失、利润损失）承担责任。
+使用者须自行验证产物的正确性，尤其在投入生产/采购前。
+
+如需商业授权，请联系仓库作者。
+
+## English
+
+All rights reserved. You may view, fork, and modify this repository for **non-commercial** purposes only.
+Commercial use, redistribution, resale, or repackaging of this project (in whole or in part) is prohibited
+without prior written permission. Third-party components under `autobom/portable/` are excluded from this
+license and remain under their own terms — see `NOTICE.md`.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED. IN NO EVENT SHALL THE
+AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY ARISING FROM THE USE OF THE SOFTWARE.

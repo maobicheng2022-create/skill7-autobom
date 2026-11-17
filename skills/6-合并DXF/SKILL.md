@@ -10,7 +10,7 @@ description: "合并一个文件夹内多份零件图纸(DWG/DXF)，按CSV配料
 ## 怎么用（唯一入口）
 
 ```
-python -X utf8 "C:\Users\mao\.openclaw\workspace\skills\6-合并DXF\scripts\dwg_merge.py" "<输入文件夹>"
+python -X utf8 "skills\6-合并DXF\scripts\dwg_merge.py" "<输入文件夹>"
 ```
 
 - `<输入文件夹>`：含若干零件图（`.dwg` 或 `.dxf`）+ 一张配料表 `.csv` 的文件夹。

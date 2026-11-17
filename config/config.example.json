@@ -1,0 +1,11 @@
+{
+  "_comment": "复制本文件为 config/config.json 后按本机情况修改；留空/删掉即走自动探测。也可用环境变量 SKILL7_<KEY大写> 覆盖，例如 SKILL7_AUTOBOM_DIR。",
+
+  "solidworks_exe": "",
+  "autobom_dir": "C:\\AutoBOM",
+  "micdatas_dir": "C:\\micDatas",
+  "shot_cache_dir": "",
+  "macro_dir": "",
+  "acad_exe": "",
+  "pdm_library_markers": []
+}

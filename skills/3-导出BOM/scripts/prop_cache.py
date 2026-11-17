@@ -13,7 +13,19 @@ import os
 import sqlite3
 import time
 
-DEFAULT_CACHE_DIR = r"C:\AutoBOM\ShotCache"  # 与截图库同一目录
+# ---- skill7 路径中枢（开源部署版）：所有绝对路径集中到 shared/skill7_paths.py ----
+import os as _os, sys as _sys
+_SK_ROOT = _os.path.abspath(_os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "..", "..", ".."))
+if _os.path.join(_SK_ROOT, "shared") not in _sys.path:
+    _sys.path.insert(0, _os.path.join(_SK_ROOT, "shared"))
+from skill7_paths import (  # noqa: E402
+    AUTOBOM_DIR, MICDATAS_DIR, AUTOBOM_CFG, SHOT_CACHE, ZHANKAI_EXE,
+    MACRO_DIR, MACRO_CLASSIFY, MACRO_PROFILE, SOLIDWORKS_EXE, SLDWORKS_EXE,
+    SLDWORKS_CANDIDATES, POPUP_GUARD, SKILLS_DIR, ACAD_EXE, PDM_MARKERS,
+)
+GLOBAL_SKILLS = SKILLS_DIR  # 兼容旧命名：依赖 skill 脚本统一走本仓库 skills/
+
+DEFAULT_CACHE_DIR = SHOT_CACHE  # 由 shared/skill7_paths.py 解析
 
 # 2026-08-12: 缓存结构版本。payload 结构变化(新增字段/属性)时必须 +1, 旧缓存自动失效。
 # 2026-08-13: +1 → v3 — extract 改递归+ExcludeFromBOM 过滤; +1 → v4 — 总装自身行入缓存(skill8 焊接/装配标记在总装根文档)。

@@ -19,12 +19,23 @@ import pythoncom
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import shot_cache
 
+# ---- skill7 路径中枢（开源部署版）：所有绝对路径集中到 shared/skill7_paths.py ----
+import os as _os, sys as _sys
+_SK_ROOT = _os.path.abspath(_os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "..", "..", ".."))
+if _os.path.join(_SK_ROOT, "shared") not in _sys.path:
+    _sys.path.insert(0, _os.path.join(_SK_ROOT, "shared"))
+from skill7_paths import (  # noqa: E402
+    AUTOBOM_DIR, MICDATAS_DIR, AUTOBOM_CFG, SHOT_CACHE, ZHANKAI_EXE,
+    MACRO_DIR, MACRO_CLASSIFY, MACRO_PROFILE, SOLIDWORKS_EXE, SLDWORKS_EXE,
+    SLDWORKS_CANDIDATES, POPUP_GUARD, SKILLS_DIR, ACAD_EXE, PDM_MARKERS,
+)
+GLOBAL_SKILLS = SKILLS_DIR  # 兼容旧命名：依赖 skill 脚本统一走本仓库 skills/
+
 SHOT_BATCH = 50  # 2026-08-12: 实测每张~90MB, 50张才4.5GB; 15张过于保守(15张时内存还有26%)
 # 2026-08-30: 12% 太晚, 大装配体(1000+实例)打开瞬间可吃满内存到 4% 触发系统不稳; 提前到 20% 重启
 SHOT_MEM_TRIGGER = 20.0
 # 2026-08-30: 危险线 — 打开装配体后低于此值立即止损(中断该组内部截图 + 重启 SW)
 SHOT_MEM_DANGER = 6.0
-SLDWORKS_EXE = r"E:\Program Files\SOLIDWORKS Corp\SOLIDWORKS\sldworks.exe"
 
 
 def _gen():

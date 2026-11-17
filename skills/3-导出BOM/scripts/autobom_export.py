@@ -30,7 +30,18 @@ import sw_bom_extract as sbe
 import prop_cache
 from formula_engine import evaluate
 
-AUTOBOM_CFG = r"C:\micDatas\pluginSettings\BOM\setting.json"
+# ---- skill7 路径中枢（开源部署版）：所有绝对路径集中到 shared/skill7_paths.py ----
+import os as _os, sys as _sys
+_SK_ROOT = _os.path.abspath(_os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "..", "..", ".."))
+if _os.path.join(_SK_ROOT, "shared") not in _sys.path:
+    _sys.path.insert(0, _os.path.join(_SK_ROOT, "shared"))
+from skill7_paths import (  # noqa: E402
+    AUTOBOM_DIR, MICDATAS_DIR, AUTOBOM_CFG, SHOT_CACHE, ZHANKAI_EXE,
+    MACRO_DIR, MACRO_CLASSIFY, MACRO_PROFILE, SOLIDWORKS_EXE, SLDWORKS_EXE,
+    SLDWORKS_CANDIDATES, POPUP_GUARD, SKILLS_DIR, ACAD_EXE, PDM_MARKERS,
+)
+GLOBAL_SKILLS = SKILLS_DIR  # 兼容旧命名：依赖 skill 脚本统一走本仓库 skills/
+
 
 
 def load_template(name):
@@ -294,7 +305,7 @@ class _Tpl:
 
 def _run_multi(sw, asm, qty, tpl_specs, filter_prop):
     """多模板一次扫装配体: tpl_specs = [(模板名,过滤值,输出路径), ...]"""
-    cache_dir = r"D:\AutoBOM\ShotCache"
+    cache_dir = SHOT_CACHE
     _hit, _cdata = False, None
     if os.path.exists(asm):
         _hit, _cdata = prop_cache.get_asm_cache(cache_dir, asm)

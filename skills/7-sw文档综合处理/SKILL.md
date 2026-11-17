@@ -1,4 +1,4 @@
-﻿---
+---
 name: "7-sw文档综合处理"
 description: "SW总装一键综合处理(图号→分类→多表BOM×qty→钣金展开→合并DXF→型材宏)的唯一权威入口。直接照抄执行下方命令, 禁止自行前置检查/开总装/关文档/重写逻辑。强制folder+qty。"
 ---
@@ -24,13 +24,13 @@ description: "SW总装一键综合处理(图号→分类→多表BOM×qty→钣�
 运行下面这一条命令即可（用真实文件夹替换 `<图纸文件夹>`，用真实套数替换 `<套数>`）：
 
 ```
-python -X utf8 "C:\Users\mao\.openclaw\workspace\skills\7-sw文档综合处理\scripts\sw_doc_process.py" "<图纸文件夹>" --qty <套数>
+python -X utf8 "skills\7-sw文档综合处理\scripts\sw_doc_process.py" "<图纸文件夹>" --qty <套数>
 ```
 
 例如处理「测试」文件夹、做 1 套：
 
 ```
-python -X utf8 "C:\Users\mao\.openclaw\workspace\skills\7-sw文档综合处理\scripts\sw_doc_process.py" "C:\Users\mao\Desktop\agent team\其他项目\测试" --qty 1
+python -X utf8 "skills\7-sw文档综合处理\scripts\sw_doc_process.py" "C:\Users\mao\Desktop\agent team\其他项目\测试" --qty 1
 ```
 
 ## ★执行姿势（2026-08-30 固化，防 exec SIGKILL 连坐）
@@ -42,9 +42,9 @@ python -X utf8 "C:\Users\mao\.openclaw\workspace\skills\7-sw文档综合处理\s
 
 ```powershell
 # 1) 后台启动, 日志写文件
-Start-Process -FilePath "C:\Python314\python.exe" -ArgumentList "-X","utf8","C:\Users\mao\.openclaw\workspace\skills\7-sw文档综合处理\scripts\sw_doc_process.py","<图纸文件夹>","--qty","<套数>" -RedirectStandardOutput "C:\Users\mao\.openclaw\workspace\turing-workspace\memory\skill7_run.log" -RedirectStandardError "C:\Users\mao\.openclaw\workspace\turing-workspace\memory\skill7_run.err" -WindowStyle Hidden
+Start-Process -FilePath "python" -ArgumentList "-X","utf8","skills\7-sw文档综合处理\scripts\sw_doc_process.py","<图纸文件夹>","--qty","<套数>" -RedirectStandardOutput "logs\skill7_run.log" -RedirectStandardError "logs\skill7_run.err" -WindowStyle Hidden
 # 2) 轮询日志 (不要设 exec 短超时; 用长 yieldMs/process poll)
-Get-Content -LiteralPath "C:\Users\mao\.openclaw\workspace\turing-workspace\memory\skill7_run.log" -Encoding UTF8 -Tail 20
+Get-Content -LiteralPath "logs\skill7_run.log" -Encoding UTF8 -Tail 20
 ```
 
 铁律：
@@ -58,7 +58,7 @@ skill7 支持步骤级续跑，中断后不必整条重跑 2-3 小时：
 
 ```
 # 从步骤 9 续跑(中断在 8.8 之后, 前面产物已全)
-python -X utf8 "C:\Users\mao\.openclaw\workspace\skills\7-sw文档综合处理\scripts\sw_doc_process.py" "<图纸文件夹>" --qty <套数> --from 9
+python -X utf8 "skills\7-sw文档综合处理\scripts\sw_doc_process.py" "<图纸文件夹>" --qty <套数> --from 9
 
 # 只跑 8 到 10 段
 python -X utf8 "...sw_doc_process.py" "<图纸文件夹>" --qty <套数> --from 8 --to 10
@@ -136,7 +136,7 @@ python -X utf8 "...sw_doc_process.py" "<图纸文件夹>" --qty <套数> --skip 
 6. **close_asm 传标题**：`sw.CloseDoc(os.path.splitext(os.path.basename(p))[0])`，传路径静默失败。
 7. **型材宏模块 `AutoBOM_型材批量处理`**（非 Macro51）；完成弹窗标题是 `AutoBOM 型材批量处理`，前台点弹窗线程须匹配 AutoBOM（已修）。
 8. **钣金展开退出码不可靠**：AutoBaiJinZhanKai.exe 批量虽 rc=1 但实际成功生成（统计bug）。步骤8 用**产物校验**(dxf数>0, 剔除 合并图纸_*)。
-9. **skill 双副本陷阱**：脚本统一指向全局 `C:\Users\mao\.openclaw\workspace\skills`（GLOBAL_SKILLS），勿混 turing-workspace\skills 本地副本。
+9. **skill 副本统一**：依赖脚本统一指向本仓库 `skills\`（由 `shared/skill7_paths.py` 解析），不再有两份副本互相打架；改脚本只改仓库里这一份。
 10. **★弹窗守卫残留干扰（2026-08-08 修复）**：旧版守卫 `sw_popup_guard.py` 是 `while True` 死循环且只响应 Ctrl+C；skill7 跑完 terminate 不一定能让它退出，且旧 `stop_popup_guard()` 只杀本次 Popen 的那个守卫、只在正常完成路径调用 → 中途异常/被打断就残留成孤儿进程，**一直自动点掉/关闭 SW 弹窗，干扰皇上正常用 SW**。已双层修复：
     - `sw_popup_guard.py` 加 SIGTERM/SIGINT 信号处理（terminate 能优雅退出）；
     - skill7 `stop_popup_guard()` 升级为**全量清理**所有 `sw_popup_guard.py` 进程（含历史孤儿，按命令行匹配逐个 taskkill /F，不碰其它 python），并在 `__main__` 用 try/except 兜底——**任何退出路径（成功/异常/SystemExit）都确保守卫被清空，0 残留**。
@@ -150,16 +150,16 @@ python -X utf8 "...sw_doc_process.py" "<图纸文件夹>" --qty <套数> --skip 
 脚本启动时会自动处理，**你无需也不要在外部手动做前置**：
 
 1. **SW 必须以「正常方式」启动**（`Start-Process sldworks.exe`，非 `-Embedding`）→ exec 后台进程 COM 上下文才读得到桌面 SW 的 ROT，`GetActiveObject` 才连得上。脚本 `ensure_sw_normal_start()` 启动时自动：连不上就用 `Start-Process` 拉起 sldworks.exe 并轮询等待注册(≤120s)。
-2. **PDM 库图纸的模态弹窗阻塞**（打开 D:\feedingHero 等 PDM 库图纸弹「未检出是否检出」/「另存为」/「完成提示」）→ 脚本自动后台拉起 `sw_popup_guard.py`（路径 `turing-workspace/scripts/sw_popup_guard.py`）常驻轮询自动点：PDM未检出点"否"、另存为点"取消"、完成提示点"确定"。**跑完保证 0 残留**（见关键坑 #10）：脚本正常完成/异常/中断都会全量清理守卫进程，绝不残留孤儿来干扰皇上 SW 的日常使用。
+2. **PDM 库图纸的模态弹窗阻塞**（打开 PDM 只读库图纸弹「未检出是否检出」/「另存为」/「完成提示」）→ 脚本自动后台拉起 `sw_popup_guard.py`（同目录）常驻轮询自动点：PDM未检出点"否"、另存为点"取消"、完成提示点"确定"。**跑完保证 0 残留**（见关键坑 #10）：脚本正常完成/异常/中断都会全量清理守卫进程。
 3. **`~$` 锁文件被误当总装** → 找总装已排除 `not f.startswith("~")`（见关键坑 #3）。
 
 > 依赖缺失时（缺 sw_popup_guard.py）脚本会**拒绝启动**并给明确报错，不会带病跑。
 
 ## 依赖与前置
 
-- SolidWorks（脚本会自动正常启动/连上，见上「三大运行前置根因」）；Python 64 位；pywin32 + openpyxl + Pillow + ezdxf；AutoBOM 插件 `C:\AutoBOM\AutoBaiJinZhanKai.exe`
-- 依赖 skill（全局）：1-图号/3-导出BOM/4-导出BOM带截图/5-运行SW宏/6-合并DXF
-- 宏路径固定：`Z:\solidworks information\macro\零件分类.swp` / `...\型材零件名称数量合成另存文件夹.swp`
+- SolidWorks（脚本会自动正常启动/连上，见上「三大运行前置根因」）；Python 64 位；pywin32 + openpyxl + Pillow + ezdxf；AutoBOM 插件（默认装 `C:\AutoBOM`，可用 `config\config.json` 的 `autobom_dir` 改）
+- 依赖 skill（同仓库）：1-图号/3-导出BOM/4-导出BOM带截图/5-运行SW宏/6-合并DXF/8-焊接装配/9-整理型材/10-虚拟件
+- 宏目录由 `config\config.json` 的 `macro_dir` 决定，默认仓库 `macros\`；两个关键宏：`零件分类.swp` / `型材零件名称数量合成另存文件夹.swp`
 - 目标文件夹需含总装配体 `.sldasm`（排除 ST_，代号最短者为总装）
 
 ## 校验（交付前看产物；深度核对规则如下）

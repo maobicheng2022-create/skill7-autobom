@@ -7,7 +7,7 @@
 ## 一条命令（独立使用）
 
 ```bat
-python -X utf8 "C:\Users\mao\.openclaw\workspace\skills\10-虚拟件外部化与Pipe标记\scripts\sw_virtual_extract_and_mark.py" --dir "<图纸文件夹>" [--asm "<总装路径>"]
+python -X utf8 "skills\10-虚拟件外部化与Pipe标记\scripts\sw_virtual_extract_and_mark.py" --dir "<图纸文件夹>" [--asm "<总装路径>"]
 ```
 
 - `--dir` 必填：图纸文件夹

@@ -12,7 +12,7 @@ description: "从装配体按AutoBOM模板以「焊接或装配标记」属性�
 前置：SolidWorks 已开启。
 
 ```
-python -X utf8 "C:\Users\mao\.openclaw\workspace\skills\8-焊接装配标志分类输出BOM带截图\scripts\sw_weld_export.py" --dir "<图纸文件夹>" -o "<输出目录>" --template "<模板名>" --filter-value "<焊接或装配标记值>" [--asm "<总装.sldasm>"] [--qty 套数]
+python -X utf8 "skills\8-焊接装配标志分类输出BOM带截图\scripts\sw_weld_export.py" --dir "<图纸文件夹>" -o "<输出目录>" --template "<模板名>" --filter-value "<焊接或装配标记值>" [--asm "<总装.sldasm>"] [--qty 套数]
 ```
 
 参数：

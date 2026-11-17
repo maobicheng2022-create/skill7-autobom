@@ -12,7 +12,7 @@ description: "按最新文件名(代号_名称)用纯COM直写SW装配体全层�
 前置：SolidWorks 正在运行。
 
 ```
-python -X utf8 "C:\Users\mao\.openclaw\workspace\skills\1-图号名称更新\scripts\sw_批量更新图号_v2.py"
+python -X utf8 "skills\1-图号名称更新\scripts\sw_批量更新图号_v2.py"
 ```
 
 - 脚本自动连接 SW、打开活动装配体、遍历全层级组件，按「最新文件名」的 `代号_名称`（下划线分隔）直写每个文件的「代号」「名称」属性。
@@ -21,11 +21,11 @@ python -X utf8 "C:\Users\mao\.openclaw\workspace\skills\1-图号名称更新\scr
 - **只写这两个属性，其他属性绝不增删改。**
 - 可选：只处理文件名含某关键词的文件（小范围验证）：
   ```
-  $env:SW_FILTER="关键词"; python -X utf8 "C:\Users\mao\.openclaw\workspace\skills\1-图号名称更新\scripts\sw_批量更新图号_v2.py"
+  $env:SW_FILTER="关键词"; python -X utf8 "skills\1-图号名称更新\scripts\sw_批量更新图号_v2.py"
   ```
 - 可选：指定装配体路径（不必先手工打开；SKILL 文档旧版未记载，代码 `--asm` 参数支持）：
   ```
-  python -X utf8 "C:\Users\mao\.openclaw\workspace\skills\1-图号名称更新\scripts\sw_批量更新图号_v2.py" --asm "D:\...\XXX.SLDASM"
+  python -X utf8 "skills\1-图号名称更新\scripts\sw_批量更新图号_v2.py" --asm "D:\...\XXX.SLDASM"
   ```
 - 空代号/空名称的文件自动跳过（格式不规范不硬写）。
 - 注意：只处理「装配体里引用的文件」。同文件夹里不在装配体中的零件不会被更新（如需处理要单独指定）。

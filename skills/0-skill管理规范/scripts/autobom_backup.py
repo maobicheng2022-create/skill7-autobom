@@ -18,9 +18,20 @@ import subprocess
 import sys
 import time
 
-AUTOBOM_DIR = r"C:\AutoBOM"
-CONFIG_DIR = r"C:\micDatas\pluginSettings\BOM"
-BACKUP_ROOT = r"C:\AutoBOM\_backup"
+# ---- skill7 路径中枢（开源部署版）：所有绝对路径集中到 shared/skill7_paths.py ----
+import os as _os, sys as _sys
+_SK_ROOT = _os.path.abspath(_os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "..", "..", ".."))
+if _os.path.join(_SK_ROOT, "shared") not in _sys.path:
+    _sys.path.insert(0, _os.path.join(_SK_ROOT, "shared"))
+from skill7_paths import (  # noqa: E402
+    AUTOBOM_DIR, MICDATAS_DIR, AUTOBOM_CFG, SHOT_CACHE, ZHANKAI_EXE,
+    MACRO_DIR, MACRO_CLASSIFY, MACRO_PROFILE, SOLIDWORKS_EXE, SLDWORKS_EXE,
+    SLDWORKS_CANDIDATES, POPUP_GUARD, SKILLS_DIR, ACAD_EXE, PDM_MARKERS,
+)
+GLOBAL_SKILLS = SKILLS_DIR  # 兼容旧命名：依赖 skill 脚本统一走本仓库 skills/
+
+CONFIG_DIR = os.path.join(MICDATAS_DIR, "pluginSettings", "BOM")
+BACKUP_ROOT = os.path.join(AUTOBOM_DIR, "_backup")
 TS = time.strftime("%Y%m%d_%H%M%S")
 
 # 要备份的 AutoBOM 根目录条目（文件）+ 整个 Plugin 很重要（含 addin/logo/插件配置）
@@ -75,7 +86,7 @@ def do_backup():
 
     # 3) 备份源码工程（放到 _src_工程 子目录避免与扁平 exe 文件同名冲突）
     src_dst = os.path.join(root, "_src_工程")
-    s = r"C:\AutoBOM\_src\AutoBOM.exe"
+    s = os.path.join(AUTOBOM_DIR, "_src", "AutoBOM.exe")
     if os.path.isdir(s):
         dst = os.path.join(src_dst, os.path.basename(s))
         if os.path.exists(dst):

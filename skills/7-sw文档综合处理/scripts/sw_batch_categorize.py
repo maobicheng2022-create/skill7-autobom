@@ -15,6 +15,18 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                 "..", "..", "3-导出BOM", "scripts"))
 import sw_bom_extract as sbe
 
+# ---- skill7 路径中枢（开源部署版）：所有绝对路径集中到 shared/skill7_paths.py ----
+import os as _os, sys as _sys
+_SK_ROOT = _os.path.abspath(_os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "..", "..", ".."))
+if _os.path.join(_SK_ROOT, "shared") not in _sys.path:
+    _sys.path.insert(0, _os.path.join(_SK_ROOT, "shared"))
+from skill7_paths import (  # noqa: E402
+    AUTOBOM_DIR, MICDATAS_DIR, AUTOBOM_CFG, SHOT_CACHE, ZHANKAI_EXE,
+    MACRO_DIR, MACRO_CLASSIFY, MACRO_PROFILE, SOLIDWORKS_EXE, SLDWORKS_EXE,
+    SLDWORKS_CANDIDATES, POPUP_GUARD, SKILLS_DIR, ACAD_EXE, PDM_MARKERS,
+)
+GLOBAL_SKILLS = SKILLS_DIR  # 兼容旧命名：依赖 skill 脚本统一走本仓库 skills/
+
 PY = sys.executable
 VALID = {"钣金件", "型材", "外购件", "标准件", "机加件", "机加工"}
 
@@ -71,7 +83,7 @@ def restart_sw(sw):
         pass
     time.sleep(5)
     subprocess.run(["powershell", "-NoProfile", "-Command",
-                    "Start-Process 'E:\\Program Files\\SOLIDWORKS Corp\\SOLIDWORKS\\sldworks.exe'"],
+                    "Start-Process '%s'" % SOLIDWORKS_EXE],
                    capture_output=True, text=True)
     time.sleep(8)
     return connect_sw()

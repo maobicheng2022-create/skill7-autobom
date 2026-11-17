@@ -15,7 +15,7 @@ date: "2026-08-02T10:04:44.977Z"
 前置：SolidWorks 已开启。
 
 ```
-python -X utf8 "C:\Users\mao\.openclaw\workspace\skills\3-导出BOM\scripts\autobom_export.py" --asm "<装配体.sldasm路径>" --template <模板名> --filter-prop 采购类别 --filter-value <分类值> -o "<输出.csv或.xlsx>"
+python -X utf8 "skills\3-导出BOM\scripts\autobom_export.py" --asm "<装配体.sldasm路径>" --template <模板名> --filter-prop 采购类别 --filter-value <分类值> -o "<输出.csv或.xlsx>"
 ```
 
 参数：

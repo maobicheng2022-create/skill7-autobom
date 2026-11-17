@@ -12,21 +12,22 @@ import subprocess
 import sys
 import time
 
-POPUP_GUARD = r"C:\Users\mao\.openclaw\workspace\turing-workspace\scripts\sw_popup_guard.py"
-SLDWORKS_EXE = r"E:\Program Files\SOLIDWORKS Corp\SOLIDWORKS\sldworks.exe"
+# ---- skill7 路径中枢（开源部署版）：所有绝对路径集中到 shared/skill7_paths.py ----
+import os as _os, sys as _sys
+_SK_ROOT = _os.path.abspath(_os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "..", "..", ".."))
+if _os.path.join(_SK_ROOT, "shared") not in _sys.path:
+    _sys.path.insert(0, _os.path.join(_SK_ROOT, "shared"))
+from skill7_paths import (  # noqa: E402
+    AUTOBOM_DIR, MICDATAS_DIR, AUTOBOM_CFG, SHOT_CACHE, ZHANKAI_EXE,
+    MACRO_DIR, MACRO_CLASSIFY, MACRO_PROFILE, SOLIDWORKS_EXE, SLDWORKS_EXE,
+    SLDWORKS_CANDIDATES, POPUP_GUARD, SKILLS_DIR, ACAD_EXE, PDM_MARKERS,
+)
+GLOBAL_SKILLS = SKILLS_DIR  # 兼容旧命名：依赖 skill 脚本统一走本仓库 skills/
 
-# SW 安装位置候选(2026-08-06 实测装于 E:\Program Files; C 盘亦常见)
-SLDWORKS_CANDIDATES = [
-    SLDWORKS_EXE,
-    r"C:\Program Files\SOLIDWORKS Corp\SOLIDWORKS\sldworks.exe",
-    r"D:\Program Files\SOLIDWORKS Corp\SOLIDWORKS\sldworks.exe",
-    "sldworks.exe",  # 保底: 靠 PATH 找
-]
 
 BASE = os.path.dirname(os.path.abspath(__file__))
 
-# 依赖 skill 脚本根 — 统一指向全局 skills (workspace\skills), 不维护本地副本
-GLOBAL_SKILLS = r"C:\Users\mao\.openclaw\workspace\skills"
+# 依赖 skill 脚本根 — 统一指向本仓库 skills/（由 skill7_paths 解析，无需维护多份副本）
 S1 = os.path.normpath(os.path.join(GLOBAL_SKILLS, "1-图号名称更新", "scripts"))
 S3 = os.path.normpath(os.path.join(GLOBAL_SKILLS, "3-导出BOM", "scripts"))
 S4 = os.path.normpath(os.path.join(GLOBAL_SKILLS, "4-导出BOM带截图", "scripts"))
@@ -36,9 +37,6 @@ S8 = os.path.normpath(os.path.join(GLOBAL_SKILLS, "8-焊接装配标志分类输
 S9 = os.path.normpath(os.path.join(GLOBAL_SKILLS, "9-整理型材", "scripts"))
 S10 = os.path.normpath(os.path.join(GLOBAL_SKILLS, "10-虚拟件外部化与Pipe标记", "scripts"))
 
-MACRO_CLASSIFY = r"Z:\solidworks information\macro\零件分类.swp"
-MACRO_PROFILE = r"Z:\solidworks information\macro\型材零件名称数量合成另存文件夹.swp"
-ZHANKAI_EXE = r"C:\AutoBOM\AutoBaiJinZhanKai.exe"
 
 PY = sys.executable or "python"
 
@@ -526,11 +524,11 @@ def main():
     step("6.6", "焊接部件清单(skill8)", lambda: py_script(
         os.path.join(S8, "sw_weld_export.py"),
         ["--dir", folder, "-o", folder, "--template", "焊接部件清点清单",
-         "--filter-value", "焊接", "--cache-dir", r"D:\AutoBOM\ShotCache"] + qty_args + asm_args))
+         "--filter-value", "焊接", "--cache-dir", SHOT_CACHE] + qty_args + asm_args))
     step("6.7", "装配部件清单(skill8)", lambda: py_script(
         os.path.join(S8, "sw_weld_export.py"),
         ["--dir", folder, "-o", folder, "--template", "焊接部件清点清单",
-         "--filter-value", "装配", "--cache-dir", r"D:\AutoBOM\ShotCache"] + qty_args + asm_args))
+         "--filter-value", "装配", "--cache-dir", SHOT_CACHE] + qty_args + asm_args))
 
     # ===== 步骤7 关闭装配体(关键2): 步骤2-6 BOM 已重新打开装配体并结束,
     #     关闭它以释放锁定的零件, 否则钣金展开/合并读分类副本失败 =====

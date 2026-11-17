@@ -25,17 +25,21 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import shot_cache
 import prop_cache
 
-AUTOBOM_CFG = r"C:\micDatas\pluginSettings\BOM\setting.json"
+# ---- skill7 路径中枢（开源部署版）：所有绝对路径集中到 shared/skill7_paths.py ----
+import os as _os, sys as _sys
+_SK_ROOT = _os.path.abspath(_os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "..", "..", ".."))
+if _os.path.join(_SK_ROOT, "shared") not in _sys.path:
+    _sys.path.insert(0, _os.path.join(_SK_ROOT, "shared"))
+from skill7_paths import (  # noqa: E402
+    AUTOBOM_DIR, MICDATAS_DIR, AUTOBOM_CFG, SHOT_CACHE, ZHANKAI_EXE,
+    MACRO_DIR, MACRO_CLASSIFY, MACRO_PROFILE, SOLIDWORKS_EXE, SLDWORKS_EXE,
+    SLDWORKS_CANDIDATES, POPUP_GUARD, SKILLS_DIR, ACAD_EXE, PDM_MARKERS,
+)
+GLOBAL_SKILLS = SKILLS_DIR  # 兼容旧命名：依赖 skill 脚本统一走本仓库 skills/
+
 FILTER_PROP = "焊接或装配标记"
-POPUP_GUARD = r"C:\Users\mao\.openclaw\workspace\turing-workspace\scripts\sw_popup_guard.py"
 
 # SW 安装位置候选(2026-08-06 实测装于 E:\Program Files; C 盘亦常见)
-SLDWORKS_CANDIDATES = [
-    r"E:\Program Files\SOLIDWORKS Corp\SOLIDWORKS\sldworks.exe",
-    r"C:\Program Files\SOLIDWORKS Corp\SOLIDWORKS\sldworks.exe",
-    r"D:\Program Files\SOLIDWORKS Corp\SOLIDWORKS\sldworks.exe",
-    "sldworks.exe",  # 保底: 靠 PATH 找
-]
 
 PY = sys.executable or "python"
 
@@ -1367,8 +1371,8 @@ def main():
     ap.add_argument("--filter-value", required=True, help="焊接或装配标记过滤值(必填), 如 焊接/装配")
     ap.add_argument("--asm", default="", help="可选, 显式指定总装配体.sldasm完整路径(优先于自动识别)")
     ap.add_argument("--qty", type=int, default=1, help="套数/数量, 导出表格的$总数量会乘以此值(默认1, 建议显式指定)")
-    ap.add_argument("--img-dir", default="", help="截图存放目录(默认 C:\\AutoBOM\\ShotCache 全局截图库; 旧版 IMG 子目录已废弃)")
-    ap.add_argument("--cache-dir", default=shot_cache.DEFAULT_CACHE_DIR, help="截图缓存库目录(默认 C:\\AutoBOM\\ShotCache)")
+    ap.add_argument("--img-dir", default="", help="截图存放目录(默认 %s)" % SHOT_CACHE)
+    ap.add_argument("--cache-dir", default=shot_cache.DEFAULT_CACHE_DIR, help="截图缓存库目录(默认 %s)" % SHOT_CACHE)
     ap.add_argument("--no-cache", action="store_true", help="禁用截图缓存(强制全部重新截图)")
     ap.add_argument("--no-prop-cache", action="store_true", help="禁用属性缓存(强制重新打开总装扫属性)")
     ap.add_argument("--limit", type=int, default=0, help="仅处理前N个零件(测试用)")

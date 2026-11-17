@@ -15,7 +15,7 @@ date: "2026-08-02T15:08:39.450Z"
 前置：SolidWorks 已开启。输入：**图纸文件夹路径**（自动找总装并打开）+ 输出目录。
 
 ```
-python -X utf8 "C:\Users\mao\.openclaw\workspace\skills\4-导出BOM带截图\scripts\sw_buyout_export.py" --dir "<图纸文件夹>" -o "<输出目录>" [--template 总外购件] [--filter-value 外购件]
+python -X utf8 "skills\4-导出BOM带截图\scripts\sw_buyout_export.py" --dir "<图纸文件夹>" -o "<输出目录>" [--template 总外购件] [--filter-value 外购件]
 ```
 
 参数：

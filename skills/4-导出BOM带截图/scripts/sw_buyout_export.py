@@ -34,7 +34,18 @@ import prop_cache
 
 from openpyxl.utils import column_index_from_string
 
-AUTOBOM_CFG = r"C:\micDatas\pluginSettings\BOM\setting.json"
+# ---- skill7 路径中枢（开源部署版）：所有绝对路径集中到 shared/skill7_paths.py ----
+import os as _os, sys as _sys
+_SK_ROOT = _os.path.abspath(_os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "..", "..", ".."))
+if _os.path.join(_SK_ROOT, "shared") not in _sys.path:
+    _sys.path.insert(0, _os.path.join(_SK_ROOT, "shared"))
+from skill7_paths import (  # noqa: E402
+    AUTOBOM_DIR, MICDATAS_DIR, AUTOBOM_CFG, SHOT_CACHE, ZHANKAI_EXE,
+    MACRO_DIR, MACRO_CLASSIFY, MACRO_PROFILE, SOLIDWORKS_EXE, SLDWORKS_EXE,
+    SLDWORKS_CANDIDATES, POPUP_GUARD, SKILLS_DIR, ACAD_EXE, PDM_MARKERS,
+)
+GLOBAL_SKILLS = SKILLS_DIR  # 兼容旧命名：依赖 skill 脚本统一走本仓库 skills/
+
 FILTER_PROP = "采购类别"
 FILTER_VALUE_DEFAULT = "外购件"
 
@@ -107,7 +118,7 @@ def _restart_sw(sw):
         _sp.run(["powershell", "-NoProfile", "-Command",
                  "Stop-Process -Name sldworks -Force -ErrorAction SilentlyContinue"], capture_output=True)
         time.sleep(3)
-    exe = _sw_exe_from_registry() or r"E:\Program Files\SOLIDWORKS Corp\SOLIDWORKS\sldworks.exe"
+    exe = _sw_exe_from_registry() or SOLIDWORKS_EXE
     if os.path.exists(exe):
         subprocess.Popen([exe])
     for _i in range(120):
@@ -630,8 +641,8 @@ def main():
     ap.add_argument("--dir", required=True, help="图纸文件夹(自动找总装)")
     ap.add_argument("-o", "--output", required=True, help="输出目录(不放下级)")
     ap.add_argument("--template", default="总外购件", help="AutoBOM模板名, 可任意切换(默认 总外购件; 如 型材/钣金 等从 setting.json 读取)")
-    ap.add_argument("--img-dir", default="", help="截图存放目录(默认 C:\\AutoBOM\\ShotCache 全局截图库; 旧版 IMG 子目录已废弃)")
-    ap.add_argument("--cache-dir", default=shot_cache.DEFAULT_CACHE_DIR, help="截图缓存库目录(默认 C:\\AutoBOM\\ShotCache)")
+    ap.add_argument("--img-dir", default="", help="截图存放目录(默认 %s)" % SHOT_CACHE)
+    ap.add_argument("--cache-dir", default=shot_cache.DEFAULT_CACHE_DIR, help="截图缓存库目录(默认 %s)" % SHOT_CACHE)
     ap.add_argument("--no-cache", action="store_true", help="禁用截图缓存(强制全部重新截图)")
     ap.add_argument("--no-prop-cache", action="store_true", help="禁用属性缓存(强制重新打开总装扫属性)")
     ap.add_argument("--limit", type=int, default=0, help="仅处理前N个外购件(测试用)")

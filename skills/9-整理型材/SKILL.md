@@ -12,7 +12,7 @@ description: "整理型材:读采购Excel按规格归并(长方管长宽可调�
 ## 怎么用（唯一入口）
 
 ```
-python -X utf8 "C:\Users\mao\.openclaw\workspace\skills\9-整理型材\scripts\xingcai_summary.py" "<型材采购.xlsx>"
+python -X utf8 "skills\9-整理型材\scripts\xingcai_summary.py" "<型材采购.xlsx>"
 ```
 
 - `<型材采购.xlsx>`：型材采购表，**必填**，第一个 sheet。

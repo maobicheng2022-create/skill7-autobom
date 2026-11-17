@@ -98,7 +98,8 @@ def _sw_from_registry():
                 i += 1
                 if name.upper().startswith("SOLIDWORKS 20"):
                     versions.append(name)
-            versions.sort(reverse=True)  # 高版本优先
+            versions.sort(key=lambda s: int("".join(ch for ch in s if ch.isdigit()) or 0),
+                          reverse=True)  # 按版本号数值降序，避免 "SolidWorks 2022" 排到 "SOLIDWORKS 2025" 前面
             for name in versions:
                 try:
                     with winreg.OpenKey(root, name + r"\Setup") as setup:
@@ -165,7 +166,23 @@ if not os.path.isdir(MICDATAS_DIR) and os.path.isdir(BUNDLED_TEMPLATES):
     MICDATAS_DIR = BUNDLED_TEMPLATES
 AUTOBOM_CFG = os.path.join(MICDATAS_DIR, "pluginSettings", "BOM", "setting.json")
 
-SHOT_CACHE = _norm(_get("shot_cache_dir", os.path.join(AUTOBOM_DIR, "ShotCache")))
+def _detect_shot_cache():
+    """截图库自动探测：AutoBOM 目录下 + 历史遗留的 D:\\AutoBOM\\ShotCache。
+
+    多份库并存时选 shot_index.db 最新的那份（缓存命中率高）；都没有则用 AutoBOM 目录下的。
+    """
+    candidates = [os.path.join(AUTOBOM_DIR, "ShotCache"), r"D:\AutoBOM\ShotCache"]
+    best, best_mtime = None, -1
+    for d in candidates:
+        db = os.path.join(d, "shot_index.db")
+        if os.path.isfile(db):
+            m = os.path.getmtime(db)
+            if m > best_mtime:
+                best, best_mtime = d, m
+    return best or os.path.join(AUTOBOM_DIR, "ShotCache")
+
+
+SHOT_CACHE = _norm(_get("shot_cache_dir") or _detect_shot_cache())
 ZHANKAI_EXE = _norm(_get("zhankai_exe", os.path.join(AUTOBOM_DIR, "AutoBaiJinZhanKai.exe")))
 
 # ---------------------------------------------------------------- 宏

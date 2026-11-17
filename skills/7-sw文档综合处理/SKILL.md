@@ -137,7 +137,7 @@ python -X utf8 "...sw_doc_process.py" "<图纸文件夹>" --qty <套数> --skip 
 7. **型材宏模块 `AutoBOM_型材批量处理`**（非 Macro51）；完成弹窗标题是 `AutoBOM 型材批量处理`，前台点弹窗线程须匹配 AutoBOM（已修）。
 8. **钣金展开退出码不可靠**：AutoBaiJinZhanKai.exe 批量虽 rc=1 但实际成功生成（统计bug）。步骤8 用**产物校验**(dxf数>0, 剔除 合并图纸_*)。
 9. **skill 副本统一**：依赖脚本统一指向本仓库 `skills\`（由 `shared/skill7_paths.py` 解析），不再有两份副本互相打架；改脚本只改仓库里这一份。
-10. **★弹窗守卫残留干扰（2026-08-08 修复）**：旧版守卫 `sw_popup_guard.py` 是 `while True` 死循环且只响应 Ctrl+C；skill7 跑完 terminate 不一定能让它退出，且旧 `stop_popup_guard()` 只杀本次 Popen 的那个守卫、只在正常完成路径调用 → 中途异常/被打断就残留成孤儿进程，**一直自动点掉/关闭 SW 弹窗，干扰皇上正常用 SW**。已双层修复：
+10. **★弹窗守卫残留干扰（2026-08-08 修复）**：旧版守卫 `sw_popup_guard.py` 是 `while True` 死循环且只响应 Ctrl+C；skill7 跑完 terminate 不一定能让它退出，且旧 `stop_popup_guard()` 只杀本次 Popen 的那个守卫、只在正常完成路径调用 → 中途异常/被打断就残留成孤儿进程，**一直自动点掉/关闭 SW 弹窗，干扰正常使用 SW**。已双层修复：
     - `sw_popup_guard.py` 加 SIGTERM/SIGINT 信号处理（terminate 能优雅退出）；
     - skill7 `stop_popup_guard()` 升级为**全量清理**所有 `sw_popup_guard.py` 进程（含历史孤儿，按命令行匹配逐个 taskkill /F，不碰其它 python），并在 `__main__` 用 try/except 兜底——**任何退出路径（成功/异常/SystemExit）都确保守卫被清空，0 残留**。
 11. **★虚拟件检测必须查临时路径（2026-08-10）**：虚拟零部件不是"无路径"！SW 给未保存虚拟件分配 `%TEMP%\swx*\VC~~\<虚拟夹>\DN15TK23^Pipe_2-xxx.SLDPRT` 临时路径。判断条件：①路径空 ②含 `\VC~~\`/`\temp\swx` ③名字含 `^`。外部化用 `IComponent2.SaveVirtualComponent(target)`（IComponent2 没有 SaveAs 方法），保存后自动改引用，再 `model.Save()`。

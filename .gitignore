@@ -1,0 +1,47 @@
+﻿# ---- 鏈満閰嶇疆锛堝惈鍏徃璺緞/璐﹀彿锛屼笉鍏ュ簱锛?---
+config/config.json
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+*.egg-info/
+
+# ---- 杩愯浜х墿 ----
+*.log
+logs/
+output/
+*.tmp
+
+# ---- 澶囦唤/涓存椂锛圓utoBOM 鐗堟湰蹇収銆佽剼鏈敼鍓嶅浠斤級----
+*_backup*/
+backup_*/
+*.bak
+*.bak_*
+*.bad_*
+
+# ---- 鎴浘/灞炴€х紦瀛樺簱 ----
+ShotCache/
+shot_index.db
+prop_index.db
+
+# ---- 鍥剧焊涓?Office 浜х墿锛堜笉瑕佹彁浜ゅ叕鍙稿浘绾革級----
+*.sldprt
+*.sldasm
+*.slddrw
+*.dxf
+*.dwg
+*.xlsx
+*.xls
+*.docx
+*.pdf
+# 浣嗕粨搴撹嚜甯︾殑 BOM 妯℃澘 xlsx 瑕佷繚鐣欙細
+!templates/micDatas/pluginSettings/BOM/Template/*.xlsx
+
+# ---- 缂栬緫鍣?----
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

@@ -42,7 +42,7 @@ PY = sys.executable or "python"
 
 # ---- 内存保护(2026-08-07): skill7 打开大装配体加载全部引用件后 SW 内存不还给 OS,
 #      曾导致系统内存 96% 爆掉。启动前检查 + 跑完自动退 SW 释放内存 ----
-MIN_FREE_RAM_PCT = 15.0   # 启动门槛: 可用内存低于此百分比则拒绝启动
+MIN_FREE_RAM_PCT = float(os.environ.get("SKILL7_MIN_FREE_RAM_PCT", "15") or 15)   # 启动门槛: 可用内存低于此百分比则拒绝启动(环境变量/--min-mem 可调)
 FREE_SW_ON_EXIT = True    # 全流程跑完自动退出 SW 释放内存(可 --keep-sw 关闭)
 
 
@@ -384,6 +384,8 @@ def main():
     ap.add_argument("--from", dest="run_from", default="", help="断点续跑: 从某步骤号开始执行(如 --from 9 从步骤9续跑, 跳过前面已完成步骤)")
     ap.add_argument("--to", dest="run_to", default="", help="只执行到某步骤号为止(如 --from 8 --to 10 只跑8/8.8/9/10)")
     ap.add_argument("--skip", default="", help="跳过步骤号列表(逗号分隔, 如 --skip 1.6,2.1)")
+    ap.add_argument("--min-mem", type=float, default=None,
+                    help="启动前最低可用内存百分比(默认 15, 也可用环境变量 SKILL7_MIN_FREE_RAM_PCT); 小装配内存紧张时可下调")
     args = ap.parse_args()
 
     global _run_from, _run_to, _run_skip
@@ -411,7 +413,7 @@ def main():
         raise SystemExit(f"错误: 缺依赖 弹窗守卫 {POPUP_GUARD} (turing-workspace/scripts/sw_popup_guard.py)")
 
     # ★内存闸(2026-08-07): 可用内存过低直接拒绝, 避免跑一半系统卡死成上次 96%
-    check_mem_before_start()
+    check_mem_before_start(args.min_mem if args.min_mem is not None else MIN_FREE_RAM_PCT)
 
     qty_args = ["--qty", str(args.qty)]
 

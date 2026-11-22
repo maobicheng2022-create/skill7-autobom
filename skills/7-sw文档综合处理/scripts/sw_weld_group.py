@@ -34,6 +34,7 @@ from skill7_paths import (  # noqa: E402
     SLDWORKS_CANDIDATES, POPUP_GUARD, SKILLS_DIR, ACAD_EXE, PDM_MARKERS,
 )
 GLOBAL_SKILLS = SKILLS_DIR  # 兼容旧命名：依赖 skill 脚本统一走本仓库 skills/
+from material_map import classify as classify_material  # noqa: E402  型材材质分桶(201 / Q235镀锌管)
 
 PY = sys.executable or "python"
 S6 = os.path.normpath(os.path.join(GLOBAL_SKILLS, "6-合并DXF", "scripts"))
@@ -564,6 +565,59 @@ def cmd_prep_profile(args):
     log(f"[PREP-PROFILE] 完成: 建 {made} 个组工作目录 @ {tmp_root}")
 
 
+def load_material_map(pro_dir):
+    """从 型材\\型材.csv 读 代号 -> 材质（已含 材质 列时直接用；否则返回空表）。"""
+    import csv as _csv
+    p = os.path.join(pro_dir, "型材.csv")
+    m = {}
+    if not os.path.isfile(p):
+        return m
+    try:
+        with open(p, encoding="utf-8-sig") as f:
+            for row in _csv.DictReader(f):
+                code = (row.get("代号") or "").strip()
+                mat = (row.get("材质") or row.get("材料") or "").strip()
+                if code:
+                    m[code] = mat
+    except Exception as e:
+        log(f"[WARN] 读 型材.csv 材质失败: {repr(e)[:60]}")
+    return m
+
+
+def _match_code(fname, known_codes):
+    """文件名前缀里最长的已知图号（支持图号含 '-'，如 100-DX.0301.1.01）。"""
+    base = os.path.splitext(os.path.basename(fname))[0]
+    hits = [c for c in known_codes
+            if base == c or (base.startswith(c) and len(base) > len(c) and base[len(c)] in "_- ")]
+    return max(hits, key=len) if hits else ""
+
+
+def split_move_by_material(src, dst_root, mat_of):
+    """把 <src>\\<规格>\\<文件> 按材质搬到 <dst_root>\\<规格>_<材质>\\。返回移动文件数。"""
+    known = [c for c in mat_of if c]
+    moved = 0
+    for spec in sorted(os.listdir(src)):
+        spec_dir = os.path.join(src, spec)
+        if not os.path.isdir(spec_dir):
+            continue
+        for fn in os.listdir(spec_dir):
+            fp = os.path.join(spec_dir, fn)
+            if not os.path.isfile(fp):
+                continue
+            code = _match_code(fn, known)
+            mat = classify_material(mat_of.get(code, "")) if code else classify_material("")
+            out_dir = os.path.join(dst_root, "%s_%s" % (spec, mat))
+            os.makedirs(out_dir, exist_ok=True)
+            shutil.move(fp, os.path.join(out_dir, fn))
+            moved += 1
+        try:
+            if not os.listdir(spec_dir):
+                os.rmdir(spec_dir)
+        except OSError:
+            pass
+    return moved
+
+
 def cmd_collect_profile(args):
     data = load_groups(args.dir)
     folder = os.path.abspath(args.dir)
@@ -573,23 +627,18 @@ def cmd_collect_profile(args):
     if not os.path.isdir(tmp_root):
         log("[COLLECT-PROFILE] 无 _weld_tmp, 无事可做")
         return
+    mat_of = load_material_map(pro_dir)
     total = 0
     for gname in list(data["groups"].keys()) + ["__ungrouped__"]:
         src = os.path.join(tmp_root, gname, "带数量零件")
         if not os.path.isdir(src):
             log(f"[组] {gname}: 无带数量零件产物, 跳过")
             continue
-        if gname == "__ungrouped__":
-            os.makedirs(dst_root, exist_ok=True)
-            for item in os.listdir(src):
-                shutil.move(os.path.join(src, item), os.path.join(dst_root, item))
-            total += 1
-            log(f"[组] 非焊接: 带数量零件 -> {dst_root}")
-        else:
-            dst = os.path.join(dst_root, gname)
-            shutil.move(src, dst)
-            total += 1
-            log(f"[组] {gname}: 带数量零件 -> {dst}")
+        dst = dst_root if gname == "__ungrouped__" else os.path.join(dst_root, gname)
+        os.makedirs(dst, exist_ok=True)
+        n = split_move_by_material(src, dst, mat_of)
+        total += 1
+        log(f"[组] {'非焊接' if gname == '__ungrouped__' else gname}: 带数量零件 {n} 个文件 -> {dst}（按材质分目录）")
     shutil.rmtree(tmp_root, ignore_errors=True)
     log(f"[COLLECT-PROFILE] 完成: 汇总 {total} 组, 已删 {tmp_root}")
 

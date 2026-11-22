@@ -1,8 +1,8 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """装配体属性缓存库 (2026-08-12 凌晨钦定, skill3/4/8 共用)
 思路: 与截图缓存同款 — 总装文件没变 → 直接复用上次扫出的组件清单+全部属性, 零 SW。
 命中条件: asm 文件 size+mtime 一致, 且每个零件的 size+mtime 与磁盘一致(零件改了→整体重扫)。
-2026-08-12 午: 加 CACHE_VERSION=2 — 旧缓存缺 网址/采购链接/焊接或装配标记/is_asm 字段, 必须失效重扫。
+2026-08-12 午: 加 CACHE_VERSION = 6 — 旧缓存缺 网址/采购链接/焊接或装配标记/is_asm 字段, 必须失效重扫。
 
 用法:
     hit, data = prop_cache.get_asm_cache(cache_dir, asm_path)   # data = {path: {config, count, name, props, size, mtime, is_asm}}
@@ -28,7 +28,7 @@ GLOBAL_SKILLS = SKILLS_DIR  # 兼容旧命名：依赖 skill 脚本统一走本�
 DEFAULT_CACHE_DIR = SHOT_CACHE  # 由 shared/skill7_paths.py 解析
 
 # 2026-08-12: 缓存结构版本。payload 结构变化(新增字段/属性)时必须 +1, 旧缓存自动失效。
-CACHE_VERSION = 4
+CACHE_VERSION = 6
 
 
 def _db_path(cache_dir):

@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 """装配体属性缓存库 (2026-08-12 凌晨钦定, skill3/4/8 共用)
 思路: 与截图缓存同款 — 总装文件没变 → 直接复用上次扫出的组件清单+全部属性, 零 SW。
 命中条件: asm 文件 size+mtime 一致, 且每个零件的 size+mtime 与磁盘一致(零件改了→整体重扫)。
@@ -31,7 +31,7 @@ DEFAULT_CACHE_DIR = SHOT_CACHE  # 由 shared/skill7_paths.py 解析
 # 2026-08-13: +1 → v3 — extract 改递归+ExcludeFromBOM 过滤; +1 → v4 — 总装自身行入缓存(skill8 焊接/装配标记在总装根文档)。
 # 2026-09-19: +1 → v5 — 修复双重计数 bug(count 首写取 agg 全量再逐实例+1) + name 优先属性「名称」去扩展名。
 #            旧缓存 count 偏大(8实例记成15), name 带 .SLDPRT, 必须失效重扫。
-CACHE_VERSION = 5
+CACHE_VERSION = 6
 
 
 def _db_path(cache_dir):

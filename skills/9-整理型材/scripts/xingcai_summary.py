@@ -11,6 +11,13 @@ from collections import OrderedDict
 
 import openpyxl
 
+# ---- 材质归类（2026-11-23：型材只区分 201 / Q235镀锌管）----
+import os as _os, sys as _sys
+_SK_ROOT = _os.path.abspath(_os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "..", "..", ".."))
+if _os.path.join(_SK_ROOT, "shared") not in _sys.path:
+    _sys.path.insert(0, _os.path.join(_SK_ROOT, "shared"))
+from material_map import classify as classify_material  # noqa: E402
+
 BAR_LEN = 6000.0  # 一根 6m = 6000mm
 
 
@@ -74,15 +81,17 @@ def detect_sets(xlsx_path):
     return 1
 
 
-def build_key(htype, w, h, t):
-    """归一规格 key。方/长方管：长宽取 lo/hi 顺序无关 + 厚度；圆管：直径 + 厚度。"""
+def build_key(htype, w, h, t, material=''):
+    """归一规格 key（含材质）。方/长方管：长宽取 lo/hi 顺序无关 + 厚度；圆管：直径 + 厚度。
+    2026-11-23: 材质放在 key[0]，同一规格不同材质会分成两行。"""
     htype = (htype or '').strip()
+    mat = classify_material(material)
     if '\u5706\u7ba1' in htype:
         dia = safe_float(w) or safe_float(h)
-        return ('\u5706\u7ba1', round(dia, 3), round(safe_float(t), 3))
+        return (mat, '\u5706\u7ba1', round(dia, 3), round(safe_float(t), 3))
     a, b = safe_float(w), safe_float(h)
     lo, hi = min(a, b), max(a, b)
-    return (htype or '\u578b\u6750', round(lo, 3), round(hi, 3), round(safe_float(t), 3))
+    return (mat, htype or '\u578b\u6750', round(lo, 3), round(hi, 3), round(safe_float(t), 3))
 
 
 def s(x):
@@ -97,11 +106,10 @@ def num(n):
 
 
 def fmt_key(key):
-    kind = key[0]
-    t = key[-1]
+    mat, kind, t = key[0], key[1], key[-1]
     if kind == '\u5706\u7ba1':
-        return f'\u5706\u7ba1 \u03c6{s(key[1])} \u539a{s(t)}'
-    return f'{kind} {s(key[1])}\u00d7{s(key[2])} \u539a{s(t)}'
+        return f'[{mat}] \u5706\u7ba1 \u03c6{s(key[2])} \u539a{s(t)}'
+    return f'[{mat}] {kind} {s(key[2])}\u00d7{s(key[3])} \u539a{s(t)}'
 
 
 def ffd_pack(items):
@@ -144,6 +152,7 @@ def main():
     i_h = col_idx(headers, '\u9ad8', 'height')
     i_t = col_idx(headers, '\u539a\u5ea6', '\u539a', 'thickness')
     i_type = col_idx(headers, '\u578b\u6750\u7c7b\u578b', '\u7c7b\u578b', 'type')
+    i_mat = col_idx(headers, '\u6750\u8d28', '\u6750\u6599', 'material')   # 2026-11-23: 材质列
     i_len = col_idx(headers, '\u957f', '\u957f\u5ea6', 'length')
     for nm, idx in [('\u6570\u91cf', i_qty), ('\u5bbd\u5ea6', i_w), ('\u9ad8\u5ea6', i_h), ('\u539a\u5ea6', i_t), ('\u957f\u5ea6', i_len)]:
         if idx is None:
@@ -160,7 +169,8 @@ def main():
             hv = r[i_h] if i_h < len(r) else None
             tv = r[i_t] if i_t < len(r) else None
             typev = r[i_type] if i_type is not None and i_type < len(r) else None
-            key = build_key(typev if typev else '', wv, hv, tv)
+            matv = r[i_mat] if i_mat is not None and i_mat < len(r) else None
+            key = build_key(typev if typev else '', wv, hv, tv, matv if matv else '')
             if key not in groups:
                 groups[key] = {'total_len': 0.0, 'qty': 0, 'names': set()}
                 rows_by_key[key] = []
@@ -214,10 +224,10 @@ def main():
 
         spb_txt = str(sets_per_bar) if sets_per_bar else '-'
         bl_txt = f'{bar_left:.1f}' if bar_left is not None else '-'
-        print(f"{fmt:<30}{key[0]:<6}{g['qty']:>6}{num(per_set_qty):>9}{total_len:>10.1f}"
+        print(f"{fmt:<30}{key[1]:<6}{g['qty']:>6}{num(per_set_qty):>9}{total_len:>10.1f}"
               f"{per_set_len:>10.1f}{spb_txt:>10}{bl_txt:>10}{n_bars:>7}{waste:>9.1f}")
         out_rows.append({
-            '\u89c4\u683c': fmt, '\u7c7b\u578b': key[0], '\u5957\u6570': sets, '\u6570\u91cf': g['qty'],
+            '\u89c4\u683c': fmt, '\u6750\u8d28': key[0], '\u7c7b\u578b': key[1], '\u5957\u6570': sets, '\u6570\u91cf': g['qty'],
             '\u6bcf\u5957\u652f\u6570': num(per_set_qty),
             '\u603b\u957fmm': round(total_len, 1),
             '\u6bcf\u5957\u7528\u91cfmm': round(per_set_len, 1),
@@ -254,7 +264,7 @@ def main():
     wb = openpyxl.Workbook()
     ws = wb.active
     ws.title = '\u578b\u6750\u91c7\u8d2d\u6c47\u603b'
-    cols = ['\u89c4\u683c', '\u7c7b\u578b', '\u5957\u6570', '\u6570\u91cf', '\u6bcf\u5957\u652f\u6570',
+    cols = ['\u89c4\u683c', '\u6750\u8d28', '\u7c7b\u578b', '\u5957\u6570', '\u6570\u91cf', '\u6bcf\u5957\u652f\u6570',
             '\u603b\u957fmm', '\u6bcf\u5957\u7528\u91cfmm', '\u6bcf\u6839\u53ef\u5f00\u5957\u6570',
             '\u6bcf\u6839\u4f59\u6599mm', '6m\u6839\u6570', '\u5269\u4f59mm', '\u5b9e\u4f8b']
     ws.append(cols)

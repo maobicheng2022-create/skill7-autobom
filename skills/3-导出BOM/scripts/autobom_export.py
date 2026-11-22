@@ -41,6 +41,7 @@ from skill7_paths import (  # noqa: E402
     SLDWORKS_CANDIDATES, POPUP_GUARD, SKILLS_DIR, ACAD_EXE, PDM_MARKERS,
 )
 GLOBAL_SKILLS = SKILLS_DIR  # 兼容旧命名：依赖 skill 脚本统一走本仓库 skills/
+from material_map import classify as classify_material  # noqa: E402  材质两桶归类(201 / Q235镀锌管)
 
 
 
@@ -113,7 +114,9 @@ def _scan(sw, filter_rpops, cache_dir=None, asm_path=None, asm_cache_hit=None):
         all_ref.update(c.req_keys)
     plain_cols = list(dict.fromkeys(c for c in all_ref if not c.startswith("$")))
     # 2026-08-12: 属性缓存全量字段 — 模板没引用也读(网址/采购链接/焊接或装配标记 供 skill4/8 用, 否则缓存缺字段)
-    for _x in ("网址", "采购链接", "单位", "焊接或装配标记"):
+    for _x in ("网址", "采购链接", "单位", "焊接或装配标记",
+               "材料",   # 2026-11-23: 型材按材质分 201 / Q235镀锌管，需要原始材质名(解析值)
+               "材质"):
         if _x not in plain_cols:
             plain_cols.append(_x)
     # 2026-08-11: 模板含"型号规格"列时按(路径,配置)拆行, 配置名写入该列(如 ST_UPVC90°弯头 的 DN15/DN20 分开行)
@@ -249,6 +252,9 @@ def _build_row(e, cols, formulas, ref_names, filter_prop, qty):
     for c in cols:
         if formulas.get(c, ""):
             row[c] = evaluate(formulas[c], lambda n: str(row.get(n, "") or ""))
+    # 2026-11-23: 材质列 = 由「材料」解析值归类为 201 / Q235镀锌管（只这两桶）
+    row["材料"] = e.get("props", {}).get("材料", "") or row.get("材料", "")
+    row["材质"] = classify_material(row.get("材质") or row.get("材料") or "")
     return row
 
 

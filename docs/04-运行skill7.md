@@ -53,7 +53,7 @@ python -X utf8 "skills\7-sw文档综合处理\scripts\sw_doc_process.py" "D:\图
 | 9.5 | 重启 SW | 内部 |
 | 10.0 | 型材按组准备 `_weld_tmp` | `sw_weld_group.py prep-profile` |
 | 10 | 型材合成宏（逐组） | `5-.../sw_run_macro.py` |
-| 10.9 | 型材分组汇总 → `带数量零件\` | `sw_weld_group.py collect-profile` |
+| 10.9 | 型材分组汇总 → `带数量零件\`（再按材质分 `<规格>_<材质>`） | `sw_weld_group.py collect-profile` |
 
 无钣金件 / 无型材件时会自动跳过对应步骤（不会中止整条流程）。
 

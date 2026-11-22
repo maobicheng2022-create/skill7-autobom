@@ -52,22 +52,39 @@ def get_code(fname):
     return fname.rsplit(".", 1)[0]  # 无下划线则去扩展名
 
 
-def parse_filename(fname):
+def parse_filename(fname, known_codes=None):
     """
     解析 `代号_名称-材料-厚度.dxf` -> (代号, 名称, 材料, 厚度).
-    兼容: 代号_名称 之间可能空格(空格也是下划线变体, 取第一个空格/下划线前作代号)
+
+    2026-11-23: 增加"已知图号表"最长前缀匹配。图号本身含 '-'（如 100-DX.0301.1.01）
+                或整批带 `100-` 前缀时，原实现 split('-')[0] 会把代号误切成 '100'，
+                导致合并图 0 件插入。现在优先用 CSV 里的图号做最长前缀匹配。
+    材料/厚度取最后两个 '-' 段（兼容 `名称-1-材质-板厚` 这种带套数后缀的命名）。
     """
     base = os.path.splitext(os.path.basename(fname))[0]
-    parts = base.split("-")
-    if len(parts) < 3:
+    code = None
+    rest = ""
+    if known_codes:
+        hits = [c for c in known_codes
+                if c and (base == c or (base.startswith(c) and base[len(c)] in "_- "))]
+        if hits:
+            code = max(hits, key=len)
+            rest = base[len(code):].lstrip("_- ")
+
+    if code is None:
+        parts = base.split("-")
+        # 兼容: 代号_名称 之间可能空格/下划线
+        first = re.split(r"[_\s]", parts[0], maxsplit=1)
+        code = first[0]
+        name0 = first[1] if len(first) > 1 else ""
+        rest = "-".join(([name0] if name0 else []) + parts[1:])
+
+    toks = rest.split("-")
+    if len(toks) < 3:
         return None
-    # parts[0] 可能是 '代号_名称' 或 '代号 名称'
-    first = parts[0]
-    fpart = re.split(r"[_\s]", first, maxsplit=1)
-    code = fpart[0]
-    name = fpart[1] if len(fpart) > 1 else ""
-    material = parts[1]
-    thickness = parts[2]
+    name = toks[0]
+    material = toks[-2]
+    thickness = toks[-1]
     return (code, name, material, thickness)
 
 
@@ -165,7 +182,7 @@ def merge_dxf(folder, csv_path, out_path):
     all_dxf_codes = set()  # 2026-08-13: 所有 dxf 解析出的代号(含跳过的), 反查 CSV 缺件
     for f in dxfs:
         name = os.path.basename(f)
-        parsed = parse_filename(name)
+        parsed = parse_filename(name, csvmap.keys())
         if parsed is None:
             result["skipped_parse"].append(name)
             continue

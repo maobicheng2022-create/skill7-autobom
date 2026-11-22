@@ -419,14 +419,30 @@ def main():
 
     # 找总装配体(省略则用 SW 当前激活装配体)
     # 2026-08-11: 排除 Pipe_ 前缀(管道外购装配, 会被误当总装) + ST_ + ~$ 残留
+    # 2026-11-23: 改为「文件夹名优先」——先去掉末尾 _做N套，再找同名/同尾的 .sldasm；
+    #             原先按"首个下划线前的字符"算代号，遇到 100-DX.xxx / 100-ST_xxx 这类
+    #             统一前缀会全部平局，误把 ST_ 螺钉装配当总装。ST_/Pipe_ 改为任意位置包含即排除。
     asm = args.asm
     if not asm:
-        cands = [os.path.join(folder, f) for f in os.listdir(folder)
-                 if f.lower().endswith(".sldasm") and not f.startswith("~") and not f.startswith("ST_") and not f.upper().startswith("ST_") and not f.upper().startswith("PIPE_")]
-        if cands:
-            for c in sorted(cands, key=lambda p: len(os.path.splitext(os.path.basename(p))[0].split("_")[0])):
-                asm = c
-                break
+        names = [f for f in os.listdir(folder)
+                 if f.lower().endswith(".sldasm") and not f.startswith("~")]
+        base = os.path.basename(os.path.normpath(folder))
+        if "_做" in base:
+            base = base.split("_做")[0]
+        stems = {n: os.path.splitext(n)[0] for n in names}
+        exact = [n for n in names if stems[n] == base]
+        tail = [n for n in names if stems[n].endswith(base)]
+        if exact:
+            asm = os.path.join(folder, exact[0])
+        elif len(tail) == 1:
+            asm = os.path.join(folder, tail[0])
+        else:
+            cands = [os.path.join(folder, n) for n in names
+                     if "st_" not in n.lower() and "pipe_" not in n.lower()]
+            if cands:
+                asm = sorted(cands, key=lambda p: len(os.path.splitext(os.path.basename(p))[0].split("_")[0]))[0]
+        if asm:
+            log(f"[ASM] 自动识别总装: {os.path.basename(asm)}")
     asm_args = ["--asm", asm] if asm else []
 
     # 分类宏实际建的子目录名是 钣金件 / 型材 (2026-08-05 实测)

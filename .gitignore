@@ -45,3 +45,4 @@ prop_index.db
 .idea/
 .DS_Store
 Thumbs.db
+dist/

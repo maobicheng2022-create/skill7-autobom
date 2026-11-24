@@ -35,6 +35,10 @@
 
 ## 2. 五分钟部署
 
+> **只需要 AutoBOM 装到 SolidWorks（不需要跑流程）**：直接下载一键安装包，解压后双击 `安装AutoBOM.bat` 即可，不用装 Python：
+> **https://github.com/maobicheng2022-create/skill7-autobom/releases/latest**
+> 包内含 AutoBOM 本体 + 8 套 BOM 模板 + 14 个 SW 宏 + 自动注册脚本（自动申请管理员权限）。
+
 ```powershell
 git clone https://github.com/maobicheng2022-create/skill7-autobom.git
 cd skill7-autobom

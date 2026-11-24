@@ -1,0 +1,51 @@
+﻿AutoBOM 一键安装包（配合 skill7 流程）
+==========================================
+
+【里面有什么】
+  AutoBOM\            插件本体（AutoBOM.exe / AutoBOM.SW.dll / 依赖 DLL / Plugin / icon）
+  micDatas\           BOM 模板（8 套：默认/型材/钣金/型材采购/总外购件/标准件采购/型材外购件/焊接部件清点清单）
+  macros\             14 个 SolidWorks 宏（skill7 的型材合成、零件分类等）
+  安装AutoBOM.bat     双击这个（会自动申请管理员权限）
+  install_autobom.ps1 实际安装脚本（也可手动指定路径运行）
+
+【装之前确认】
+  1. Windows 10 / 11，64 位
+  2. 已装 .NET Framework 4.8（Win10 1903+ / Win11 自带）
+  3. 已装 SolidWorks（2019 及以上）
+  4. 点“是”给管理员权限（写注册表需要）
+
+【三步安装】
+  1. 把整个压缩包解压到任意目录（不要在压缩包里直接双击）
+  2. 双击 安装AutoBOM.bat，等它跑完
+  3. 重启 SolidWorks -> 工具 -> 插件 -> 勾选 AutoBOM
+
+【装到别的位置】
+  管理员 PowerShell 里执行：
+    .\install_autobom.ps1 -AutoBomDir D:\AutoBOM -MicDatasDir D:\micDatas
+  宏默认装到 <AutoBomDir>\macros，也可用 -MacroDir "Z:\solidworks information\macro" 指到共享盘。
+
+【装完怎么验证】
+    powershell -NoProfile -Command "[Type]::GetTypeFromCLSID([guid]'{E781EAD9-A4FA-4560-B0A2-994D349CB64A}')"
+  能打印出类型名 = 注册成功。
+  再打开 SW：工具 -> 插件，列表里应有 AutoBOM，勾上“启动时加载”。
+
+【常见问题】
+  * SW 里看不到 AutoBOM
+    - 没重启 SW（注册后必须重启）
+    - 没勾选：工具 -> 插件 -> AutoBOM
+    - 权限不足：右键 安装AutoBOM.bat -> 以管理员身份运行
+  * 提示“找不到 payload 目录”
+    - 解压不完整，或只拷了 .bat 文件；请整个文件夹一起解压
+  * 打开 AutoBOM 报错
+    - 缺 .NET 4.8 或 VC++ 运行库（vc_redist.x64.exe）
+  * 升级过 AutoBOM 想回滚
+    - 每次安装会自动把旧版快照到 C:\AutoBOM\_backup\backup_时间戳\，整目录覆盖回去即可
+
+【版权说明】
+  AutoBOM 内核为第三方商业 SolidWorks 插件，版权归其原作者；本包仅做便携部署与配置适配，
+  不含反编译源码。商用请自行向原厂取得授权。SolidWorks / Dassault Systèmes 为其各自所有者商标。
+
+【配套的 skill7 流程】
+  只装 AutoBOM 就能用 SW 里的 BOM 导出功能；
+  要跑“图纸 -> 采购/生产清单”的全自动流水线（图号/分类/BOM×套数/截图/展开/合并/型材），
+  请到 https://github.com/maobicheng2022-create/skill7-autobom 下载完整仓库（含 skills/tools/docs）。

@@ -1,10 +1,17 @@
-# AutoBOM 一键安装包 v1.0.0
+# AutoBOM 一键安装包 v1.0.1
 
 给 **另一台 Windows 电脑**把 AutoBOM 装进 SolidWorks 用的独立安装包（不需要装 Python、不需要克隆仓库）。
 
+## v1.0.1 更新（2026-11-25）
+
+- **修复"注册了但在 SW 里看不到页签"**：SW 的插件列表**只读机器级** `HKLM\Software\SolidWorks\Addins`；只写 `HKCU` 同名项不仅无效，还会盖住机器级那条。
+  注册脚本现在会**自动删除 HKCU 同名项**，并明确提示必须管理员运行。
+- `verify_env.py`：`HKLM\Addins` 缺失从"警告"改为"**失败**"，并新增"HKCU 同名注册冲突"检查。
+- 文档补充：**SW 版本 interop 兼容性**（随包 DLL 按 SW2025 interop 编译，SW2022 上能加载但个别功能可能报"方法不存在"）。
+
 ## 下载
 
-点下面的 **AutoBOM_SW_Installer_v1.0.0.zip** 下载（约 6 MB）。
+点下面的 **AutoBOM_SW_Installer_v1.0.1.zip** 下载（约 6 MB）。
 
 ## 安装（三步）
 

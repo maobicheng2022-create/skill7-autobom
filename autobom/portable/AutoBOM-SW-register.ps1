@@ -51,6 +51,13 @@ New-ItemProperty -Path $lk -Name 'Description' -Value 'AutoBOM' -Force | Out-Nul
 New-ItemProperty -Path $lk -Name 'Title'       -Value 'AutoBOM' -Force | Out-Null
 Write-Host "  OK  HKLM\Software\SolidWorks\Addins\$g" -ForegroundColor Green
 
+# --- 1b. 清理 HKCU 同名注册（2026-11-25：SW 只读机器级 HKLM，HKCU 同名项会盖住机器级，导致“注册了却看不到页签”）---
+$dup = "HKCU:\Software\SolidWorks\Addins\$g"
+if (Test-Path $dup) {
+    Remove-Item -Path $dup -Recurse -Force -ErrorAction SilentlyContinue
+    Write-Host "  OK  已删除会盖住机器级的 HKCU\Software\SolidWorks\Addins\$g" -ForegroundColor Green
+}
+
 # --- 2. HKCU\Software\SolidWorks\AddInsStartup\{GUID} ---
 $sk = "HKCU:\Software\SolidWorks\AddInsStartup\$g"
 New-Item -Path $sk -Force | Out-Null

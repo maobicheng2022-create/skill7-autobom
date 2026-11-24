@@ -124,10 +124,13 @@ python -X utf8 tools\verify_env.py
 
 **SW 里看不到 AutoBOM 页签**
 
-1. `verify_env.py` 看 `SW 插件注册(HKLM\Addins)` / `COM 类注册(CLSID)` 是否 OK
-2. 重启 SolidWorks（注册后必须重启）
-3. 工具 → 插件 → 勾选 AutoBOM / 启动时加载
-4. 还不行：`AutoBOM.SW.dll` 被移动过 → 重跑注册脚本（CodeBase 要指向真实路径）
+1. **先看是不是"只注册到 HKCU"**：SW 的插件列表**只读机器级** `HKLM\Software\SolidWorks\Addins\{GUID}`。
+   非管理员运行时只能写 `HKCU\Software\SolidWorks\Addins`，注册了也**不会出现在 SW 里**，而且这条 HKCU 同名项还会盖住机器级那条。
+   → 必须用**管理员**跑注册脚本；脚本（v1.0.1 起）会自动删除 HKCU 同名项。
+2. `verify_env.py` 看 `SW 插件注册(HKLM\Addins)` / `COM 类注册(CLSID)` 是否 OK
+3. 重启 SolidWorks（注册后必须重启）
+4. 工具 → 插件 → 勾选 AutoBOM / 启动时加载
+5. 还不行：`AutoBOM.SW.dll` 被移动过 → 重跑注册脚本（CodeBase 要指向真实路径）
 
 **打开 AutoBOM 主界面报错**
 

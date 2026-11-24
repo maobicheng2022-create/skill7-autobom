@@ -84,17 +84,24 @@ def check_addin():
         import winreg
     except Exception:
         return
+    # SW 的插件列表只读机器级 HKLM；HKCU 只用于“启动时加载”开关。
     try:
         winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r"Software\SolidWorks\Addins\%s" % GUID)
         add("OK", "SW 插件注册(HKLM\\Addins)", GUID)
     except OSError:
-        add("WARN", "SW 插件注册(HKLM\\Addins)",
-            "未注册；管理员运行 autobom/portable/AutoBOM-SW-register.ps1")
+        add("FAIL", "SW 插件注册(HKLM\\Addins)",
+            "未注册。SW 只读 HKLM，必须用管理员运行 autobom/portable/AutoBOM-SW-register.ps1")
+    try:
+        winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\SolidWorks\Addins\%s" % GUID)
+        add("WARN", "HKCU 同名注册(会盖住机器级)",
+            "存在 HKCU\\Software\\SolidWorks\\Addins 同名项；SW 可能忽略 HKLM。请删掉它后重启 SW")
+    except OSError:
+        pass
     try:
         winreg.OpenKey(winreg.HKEY_CLASSES_ROOT, r"CLSID\%s\InprocServer32" % GUID)
         add("OK", "COM 类注册(CLSID)", GUID)
     except OSError:
-        add("WARN", "COM 类注册(CLSID)", "未注册（同上，跑注册脚本）")
+        add("WARN", "COM 类注册(CLSID)", "未注册（同上，管理员跑注册脚本）")
 
 
 def check_templates():
